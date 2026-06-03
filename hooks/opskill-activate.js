@@ -7,8 +7,11 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
+// Plugin system sets CLAUDE_PLUGIN_ROOT. Fall back to legacy cache path for
+// standalone (settings.json-registered) installs.
 const claudeDir = process.env.CLAUDE_CONFIG_DIR || path.join(os.homedir(), '.claude');
-const pluginBase = path.join(claudeDir, 'plugins', 'cache', 'opskill', 'opskill', 'local');
+const pluginBase = process.env.CLAUDE_PLUGIN_ROOT
+  || path.join(claudeDir, 'plugins', 'cache', 'opskill', 'opskill', 'local');
 const pluginPath = path.join(pluginBase, 'skills');
 const configPath = path.join(pluginBase, 'models.json');
 

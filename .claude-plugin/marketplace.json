@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "opskill",
+  "description": "Multi-skill composer, token optimizer, and local LLM sidekick for Claude Code and AI editors.",
+  "owner": {
+    "name": "acedmicabhishek",
+    "url": "https://github.com/acedmicabhishek"
+  },
+  "plugins": [
+    {
+      "name": "opskill",
+      "description": "Compose skills (/mix), optimize responses (/aceopti), onboard projects (/aceopti-setup), delegate to local LLM (/acesidekick).",
+      "source": "./",
+      "category": "productivity"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "name": "opskill",
+  "description": "Multi-skill composer, token optimizer, and local LLM sidekick. Skills: /mix /aceopti /aceopti-setup /acesidekick.",
+  "author": {
+    "name": "acedmicabhishek",
+    "url": "https://github.com/acedmicabhishek"
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/opskill-activate.js\"",
+            "timeout": 5,
+            "statusMessage": "Loading OpSkill..."
+          }
+        ]
+      }
+    ]
+  }
+}
