@@ -1,0 +1,22 @@
+{
+  "name": "opskill",
+  "version": "0.1.0",
+  "description": "OpSkill — multi-skill composer, token optimizer, and local LLM sidekick for Claude Code and AI editors.",
+  "license": "MIT",
+  "author": "ace",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/abhishekanand-arch/OpSkill.git"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "skills/",
+    "commands/",
+    "hooks/",
+    "agents/",
+    "install.sh",
+    "README.md"
+  ]
+}

@@ -1,0 +1,2 @@
+description = "Optimized response mode — answer-first, batched tools, no summaries. Modes: fast / ace / deep"
+prompt = "Activate /aceopti mode. Args: {{args}}. Default mode: fast (no extended thinking). If args=ace: senior dev mode — spot flaw in user prompt, clarify real ask, give better solution. Format: 'Flaw: / Real ask: / Better:'. If args=deep: full reasoning ON. All modes: answer before explanation, tables over prose, batch tool calls, no re-reads, no trailing summaries. Output one line: 'aceopti active [mode].' and activate."

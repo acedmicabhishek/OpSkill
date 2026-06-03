@@ -1,0 +1,2 @@
+description = "Activate multiple skills simultaneously and stack their rules"
+prompt = "Activate /mix mode with args: {{args}}. Stack all listed skill rules simultaneously. Resolve conflicts: safety > structure > compression. Output one line: 'Mix active: [skills]. Rules stacked.' Persist until /mix reset."

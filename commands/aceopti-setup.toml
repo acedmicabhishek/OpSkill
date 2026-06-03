@@ -1,0 +1,2 @@
+description = "Project onboarding — interview agent about project, store context in memory for all future sessions"
+prompt = "Run /aceopti-setup. Args: {{args}}. If no args or 'full': ask ONE question at a time and wait for answer — 1) project type/stack/scale 2) current goal 3) in scope 4) constraints 5) consumers 6) definition of done. Then save structured context to project memory. If args=refresh: re-ask goal and scope only. If args=show: print saved context. If args=reset: delete saved context."
