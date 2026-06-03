@@ -7,7 +7,7 @@
 
 set -euo pipefail
 
-REPO_OWNER="abhishekanand-arch"
+REPO_OWNER="acedmicabhishek"
 REPO_NAME="OpSkill"
 RAW_URL="https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main"
 PLUGIN_KEY="opskill@opskill"
