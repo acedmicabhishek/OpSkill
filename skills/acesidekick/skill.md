@@ -20,6 +20,36 @@ acesidekick = route cheap tasks to local Ollama, keep reasoning here. Uses Bash 
 | Heavy sidekick | `qwen2.5-coder:14b` | Longer summaries, changelog, template filling |
 | Embeddings | `nomic-embed-text` | Semantic search, vector DB queries |
 
+## Core principle: impact × quality need
+
+**Delegate to sidekick when BOTH hold:**
+1. **Low impact** — a mistake is cheap to catch and fix, doesn't break the build or corrupt logic.
+2. **Best quality not required** — "good enough" output is acceptable; you don't need the strongest model.
+
+If both true → sidekick. If either fails → main model.
+
+| | Low impact | High impact |
+|---|---|---|
+| **Quality optional** | ✅ sidekick (docs, boilerplate, stubs) | ❌ main (refactor touching many files) |
+| **Quality critical** | ❌ main (public API signature) | ❌ main (lock-free, money math) |
+
+### Two things sidekick is for
+
+**1. Minimal / low-stakes tasks** — docstrings, comments, boilerplate, test stubs, regex, renames, file summaries, changelog. Output accepted as-is.
+
+**2. Parallel processing** — fan out many independent mechanical tasks at once. 20 files needing docstrings → fire 20 local calls in parallel, each $0. Main model would do these serially and billed. This is the biggest win.
+
+### The confirm gate
+
+Before delegating, one check:
+
+> **Will I ship the local output without reading it line-by-line?**
+
+- **Yes** → delegate. Real saving.
+- **No** → don't. If you review every line for bugs, you pay main-model tokens for review + rework anyway. Local draft = throwaway. Net ≈ 0.
+
+Failure mode to avoid: delegating correctness-critical code (lock-free atomics, UB-prone C/C++, matching logic, money math) to get a "draft." Subtle bugs → you rewrite on main model → saved nothing. Write it on main directly.
+
 ## What to delegate vs keep
 
 **Delegate to local LLM:**
@@ -42,6 +72,10 @@ acesidekick = route cheap tasks to local Ollama, keep reasoning here. Uses Bash 
 - Security review
 - Cross-file refactor planning
 - Complex debugging
+- Lock-free / concurrent code (CAS, atomics, memory ordering)
+- UB-prone C/C++ (pointer math, `clz`/`clzll` on 0, signed overflow)
+- Correctness-critical logic (matching engines, money math, percentile/stat cumulation)
+- Any code where you'll read every line before trusting it
 
 ## How to call Ollama (use Bash tool)
 
@@ -69,6 +103,37 @@ curl -s http://localhost:11434/api/generate \
 ```
 
 After Bash call returns: use the output directly. Report one line: `[sidekick] qwen2.5-coder:7b → <what was done>`
+
+## Parallel processing (the big win)
+
+For N independent mechanical tasks, fire them concurrently — don't serialize. Ollama queues but background `&` lets you launch all, then collect.
+
+Example: docstrings for many functions/files at once.
+
+```bash
+# Write each task prompt to a file, run all in parallel, collect outputs
+mkdir -p /tmp/sidekick && cd /tmp/sidekick
+
+run_task() {
+  local id="$1" prompt="$2"
+  curl -s http://localhost:11434/api/generate \
+    -d "{\"model\":\"qwen2.5-coder:7b\",\"prompt\":$(python3 -c "import json,sys; print(json.dumps(sys.argv[1]))" "$prompt"),\"stream\":false}" \
+    | python3 -c "import sys,json; print(json.load(sys.stdin)['response'])" > "out_$id.txt"
+}
+
+# launch all in background
+run_task 1 "Write a JSDoc for: function add(a,b){return a+b}" &
+run_task 2 "Write a JSDoc for: function sub(a,b){return a-b}" &
+run_task 3 "Write a JSDoc for: function mul(a,b){return a*b}" &
+wait   # block until all done
+
+# collect
+for f in out_*.txt; do echo "=== $f ==="; cat "$f"; done
+```
+
+Each call costs $0. Main model billed for zero generation — only the final Edit applying results. Report: `[sidekick] qwen2.5-coder:7b ×N parallel → <what>`.
+
+Note: a single 24GB machine runs one model instance; Ollama serializes GPU work but the `&` + `wait` pattern still overlaps curl/IO and keeps the queue full. For true throughput, keep prompts small and batched.
 
 ## How to get embeddings (use Bash tool)
 
