@@ -307,23 +307,25 @@ install_zed() {
 
 prompt_pick() {
   # prompt_pick <label> <default> [model1 model2 ...]
+  # Menu + prompts go to stderr (>&2); only the chosen value goes to stdout
+  # so the caller's $(...) capture gets the value, not the UI.
   local label="$1" default="$2"
   shift 2
   local models=("$@")
 
-  echo ""
-  echo -e "${CYAN}  $label${NC}"
+  echo "" >&2
+  echo -e "${CYAN}  $label${NC}" >&2
   if [[ ${#models[@]} -gt 0 ]]; then
     local i=1
     for m in "${models[@]}"; do
       if [[ "$m" == "$default" ]]; then
-        echo "    $i) $m  (recommended)"
+        echo "    $i) $m  (recommended)" >&2
       else
-        echo "    $i) $m"
+        echo "    $i) $m" >&2
       fi
       ((i++))
     done
-    echo "    Enter number or type model name [default: $default]: "
+    printf "    Enter number or type model name [default: %s]: " "$default" >&2
     read -r choice </dev/tty
     if [[ -z "$choice" ]]; then
       echo "$default"
@@ -333,7 +335,7 @@ prompt_pick() {
       echo "$choice"
     fi
   else
-    echo "    No models detected. Type model name [default: $default]: "
+    printf "    No models detected. Type model name [default: %s]: " "$default" >&2
     read -r choice </dev/tty
     echo "${choice:-$default}"
   fi
